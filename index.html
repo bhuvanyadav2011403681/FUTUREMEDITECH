@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FutureMedi Care App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #f0e6ff, #daf7ff, #ffe3d3);
+    }
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      background-color: #ffffff;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+      text-align: center;
+    }
+    .action-button {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      color: white;
+      background-color: #1e90ff;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .action-button:hover {
+      background-color: #4682b4;
+      transform: scale(1.05);
+    }
+    .screen, .form {
+      display: none;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .screen.active, .form.active {
+      display: block;
+      opacity: 1;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .feedback-message {
+      font-size: 1.2em;
+      color: green;
+    }
+    .record-details, .doctor-recommendation {
+      text-align: left;
+      font-size: 0.9em;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="welcomeScreen" class="screen active">
+      <h2>Welcome to FutureMedi Care! 🏥</h2>
+      <p>FutureMedi Care is a state-of-the-art hospital committed to quality and compassionate healthcare. Here are some of our specialties:</p>
+      <ul style="text-align: left;">
+        <li>🏥 Modern and advanced facilities</li>
+        <li>🩺 24/7 emergency services</li>
+        <li>👨‍⚕️ Highly qualified specialists</li>
+        <li>💉 Advanced diagnostic equipment</li>
+        <li>🚑 Quick and efficient ambulance services</li>
+        <li>👩‍⚕️ Friendly and dedicated staff</li>
+        <li>🏨 Comfortable and private patient rooms</li>
+        <li>🧪 Comprehensive lab testing</li>
+        <li>📅 Personalized treatment plans</li>
+        <li>💖 A patient-centered approach to care</li>
+      </ul>
+      <button class="action-button" onclick="showMainApp()">Next</button>
+    </div>
+
+    <div id="mainApp" class="screen">
+      <h2>Medicare App</h2>
+      <button class="action-button" onclick="showForm('createRecordForm')">Create Health Record</button>
+      <button class="action-button" onclick="showForm('accessRecordForm')">Access Health Record</button>
+      <button class="action-button" onclick="showForm('feedbackForm')">Feedback</button>
+
+      <div id="createRecordForm" class="form">
+        <h3>Create Health Record</h3>
+        <input type="text" id="patientName" placeholder="Patient Name">
+        <input type="text" id="parentName" placeholder="Parent's Name">
+        <input type="number" id="patientAge" placeholder="Patient Age">
+        <input type="text" id="patientAddress" placeholder="Address">
+        <input type="number" id="patientWeight" placeholder="Weight (kg)" onchange="calculateBMI()">
+        <input type="number" id="patientHeight" placeholder="Height (cm)" onchange="calculateBMI()">
+        <input type="text" id="patientBMI" placeholder="BMI (calculated)" readonly>
+        <input type="text" id="patientBloodGroup" placeholder="Blood Group">
+        <input type="date" id="issueDate" placeholder="Date of Issue">
+        <input type="text" id="dentalIssues" placeholder="Dental Problems">
+        <input type="text" id="foundDiseases" placeholder="Diseases Found">
+        <button class="action-button" onclick="createRecord()">Generate Secret Code</button>
+        <p id="recordMessage"></p>
+      </div>
+
+      <div id="accessRecordForm" class="form">
+        <h3>Access Health Record</h3>
+        <input type="password" id="accessCode" placeholder="Enter Secret Code">
+        <button class="action-button" onclick="accessRecord()">Access Record</button>
+        <div id="recordDisplay" class="record-details"></div>
+        <button class="action-button" onclick="location.reload()">Refresh</button>
+        <button class="action-button" onclick="showDoctorRecommendation()">Get Doctor Recommendation</button>
+        <p id="doctorRecommendation" class="doctor-recommendation"></p>
+      </div>
+
+      <div id="feedbackForm" class="form">
+        <h3>Feedback</h3>
+        <textarea id="feedbackText" rows="4" placeholder="Write your feedback..."></textarea>
+        <button class="action-button" onclick="submitFeedback()">Submit Feedback</button>
+        <p id="feedbackMessage" class="feedback-message"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let healthRecord = {};
+
+    function showMainApp() {
+      document.getElementById('welcomeScreen').classList.remove('active');
+      document.getElementById('mainApp').classList.add('active');
+    }
+
+    function showForm(formId) {
+      document.querySelectorAll('.form').forEach(form => form.classList.remove('active'));
+      document.getElementById(formId).classList.add('active');
+    }
+
+    function createRecord() {
+      const patientName = document.getElementById('patientName').value;
+      const parentName = document.getElementById('parentName').value;
+      const patientAge = document.getElementById('patientAge').value;
+      const patientAddress = document.getElementById('patientAddress').value;
+      const patientWeight = document.getElementById('patientWeight').value;
+      const patientHeight = document.getElementById('patientHeight').value;
+      const patientBMI = document.getElementById('patientBMI').value;
+      const patientBloodGroup = document.getElementById('patientBloodGroup').value;
+      const issueDate = document.getElementById('issueDate').value;
+      const dentalIssues = document.getElementById('dentalIssues').value;
+      const foundDiseases = document.getElementById('foundDiseases').value;
+
+      const secretCode = Math.random().toString(36).substring(2, 8);
+
+      healthRecord = {
+        patientName, parentName, patientAge, patientAddress, patientWeight, patientHeight,
+        patientBMI, patientBloodGroup, issueDate, dentalIssues, foundDiseases, secretCode
+      };
+
+      localStorage.setItem('healthRecord', JSON.stringify(healthRecord));
+      document.getElementById('recordMessage').textContent = `Record created! Secret Code: ${secretCode}`;
+    }
+
+    function accessRecord() {
+      const storedRecord = JSON.parse(localStorage.getItem('healthRecord'));
+      const code = document.getElementById('accessCode').value;
+
+      if (storedRecord && code === storedRecord.secretCode) {
+        const recordDetails = `
+          <strong>Name:</strong> ${storedRecord.patientName}<br>
+          <strong>Parent's Name:</strong> ${storedRecord.parentName}<br>
+          <strong>Age:</strong> ${storedRecord.patientAge}<br>
+          <strong>Address:</strong> ${storedRecord.patientAddress}<br>
+          <strong>Weight:</strong> ${storedRecord.patientWeight} kg<br>
+          <strong>Height:</strong> ${storedRecord.patientHeight} cm<br>
+          <strong>BMI:</strong> ${storedRecord.patientBMI}<br>
+          <strong>Blood Group:</strong> ${storedRecord.patientBloodGroup}<br>
+          <strong>Date of Issue:</strong> ${storedRecord.issueDate}<br>
+          <strong>Dental Issues:</strong> ${storedRecord.dentalIssues}<br>
+          <strong>Diseases Found:</strong> ${storedRecord.foundDiseases}
+        `;
+        document.getElementById('recordDisplay').innerHTML = recordDetails;
+      } else {
+        document.getElementById('recordDisplay').textContent = "Invalid Code. Please try again.";
+      }
+    }
+
+    function calculateBMI() {
+      const weight = parseFloat(document.getElementById('patientWeight').value);
+      const height = parseFloat(document.getElementById('patientHeight').value) / 100;
+
+      if (weight && height) {
+        const bmi = (weight / (height ** 2)).toFixed(1);
+        document.getElementById('patientBMI').value = bmi;
+      }
+    }
+
+    function showDoctorRecommendation() {
+      const diseases = healthRecord.foundDiseases.toLowerCase();
+      let recommendation = "";
+
+      if (diseases.includes("cold")) recommendation += "• Stay hydrated and rest.\n";
+      if (diseases.includes("allergy")) recommendation += "• Avoid allergens and take antihistamines.\n";
+      if (diseases.includes("malaria")) recommendation += "• Take prescribed anti-malarial medication.\n";
+      if (diseases.includes("dengue")) recommendation += "• Rest, stay hydrated, and monitor platelet count.\n";
+      if (diseases.includes("low blood pressure")) recommendation += "• Increase salt intake moderately and stay hydrated.\n";
+      if (diseases.includes("high blood pressure")) recommendation += "• Follow a low-sodium diet and exercise regularly.\n";
+
+      document.getElementById('doctorRecommendation').textContent = recommendation || "No specific recommendations.";
+    }
+
+    function submitFeedback() {
+      const feedback = document.getElementById('feedbackText').value;
+      document.getElementById('feedbackMessage').textContent = "Thank you for your feedback!";
+    }
+  </script>
+</body>
+</html>
